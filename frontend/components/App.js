@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { NavLink, Routes, Route, useNavigate } from 'react-router-dom'
 import Articles from './Articles'
 import LoginForm from './LoginForm'
@@ -15,6 +15,7 @@ export default function App() {
   const [articles, setArticles] = useState([])
   const [currentArticleId, setCurrentArticleId] = useState()
   const [spinnerOn, setSpinnerOn] = useState(false)
+  const [username, setUsername] = useState('')
 
   // ✨ Research `useNavigate` in React Router v.6
   const navigate = useNavigate()
@@ -36,9 +37,40 @@ export default function App() {
     // On success, we should set the token to local storage in a 'token' key,
     // put the server success message in its proper state, and redirect
     // to the Articles screen. Don't forget to turn off the spinner!
+    setMessage('')
+    setSpinnerOn(true)
+
+    console.log("Username: ", username)
+    console.log("Password: ", password)
+
+    fetch(loginUrl, {
+      method: 'POST', 
+      body: JSON.stringify({ 
+        username: username,
+        password: password
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => {
+      if(!response.ok){
+        throw new Error('Error!!!')
+      }
+      return response.json()
+    })
+    .then(data => {
+      console.log('Success:', data)
+      setMessage(data.message)
+      localStorage.setItem("token",data.token)
+    })
+    .catch(error => {
+      console.error('Error:', error)
+    })
+    setSpinnerOn(false)
   }
 
-  const getArticles = () => {
+  const getArticles = async () => {
     // ✨ implement
     // We should flush the message state, turn on the spinner
     // and launch an authenticated request to the proper endpoint.
@@ -47,6 +79,25 @@ export default function App() {
     // If something goes wrong, check the status of the response:
     // if it's a 401 the token might have gone bad, and we should redirect to login.
     // Don't forget to turn off the spinner!
+    // setMessage('')
+    // setSpinnerOn(true)
+    // try {
+    //   const res = await fetch(articlesUrl, {
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       Authorization: 'OPENAI_API_KEY'
+    //     }      
+    //   })
+    //   if (!res.ok) throw new Error(`Something is wrong: ${res.status}`)
+    //   const data = await res.json()
+  
+    //   // You are interested in a particular part of the response payload
+    //   console.log(data.choices[0].message.content) // Here is the generated output
+    //   // But feel free to explore the entire response body!
+    //   console.log(data)
+    // } catch (err) {
+    //   console.log(err.message)
+    // }
   }
 
   const postArticle = article => {
@@ -68,8 +119,8 @@ export default function App() {
   return (
     // ✨ fix the JSX: `Spinner`, `Message`, `LoginForm`, `ArticleForm` and `Articles` expect props ❗
     <>
-      <Spinner />
-      <Message />
+      <Spinner on={spinnerOn}/>
+      <Message message={message}/>
       <button id="logout" onClick={logout}>Logout from app</button>
       <div id="wrapper" style={{ opacity: spinnerOn ? "0.25" : "1" }}> {/* <-- do not change this line */}
         <h1>Advanced Web Applications</h1>
@@ -78,11 +129,11 @@ export default function App() {
           <NavLink id="articlesScreen" to="/articles">Articles</NavLink>
         </nav>
         <Routes>
-          <Route path="/" element={<LoginForm />} />
+          <Route path="/" element={<LoginForm login={login} />} />
           <Route path="articles" element={
             <>
-              <ArticleForm />
-              <Articles />
+              <ArticleForm updateArticle={updateArticle} setCurrentArticleId={setCurrentArticleId} postArticle={postArticle} />
+              <Articles setCurrentArticleId={setCurrentArticleId} articles={articles} getArticles={getArticles} deleteArticle={deleteArticle}/>
             </>
           } />
         </Routes>
