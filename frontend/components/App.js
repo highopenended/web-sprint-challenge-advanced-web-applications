@@ -19,8 +19,9 @@ export default function App() {
 
   // ✨ Research `useNavigate` in React Router v.6
   const navigate = useNavigate()
-  const redirectToLogin = () => { /* ✨ implement */ }
-  const redirectToArticles = () => { /* ✨ implement */ }
+  const redirectToLogin = () => navigate('/')
+  const redirectToArticles = () =>  navigate('/articles')
+  
 
   const logout = () => {
     // ✨ implement
@@ -28,6 +29,7 @@ export default function App() {
     // and a message saying "Goodbye!" should be set in its proper state.
     // In any case, we should redirect the browser back to the login screen,
     // using the helper above.
+    redirectToLogin()
   }
 
   const login = ({ username, password }) => {
@@ -63,6 +65,7 @@ export default function App() {
       console.log('Success:', data)
       setMessage(data.message)
       localStorage.setItem("token",data.token)
+      redirectToArticles()
     })
     .catch(error => {
       console.error('Error:', error)
@@ -81,23 +84,32 @@ export default function App() {
     // Don't forget to turn off the spinner!
     // setMessage('')
     // setSpinnerOn(true)
-    // try {
-    //   const res = await fetch(articlesUrl, {
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       Authorization: 'OPENAI_API_KEY'
-    //     }      
-    //   })
-    //   if (!res.ok) throw new Error(`Something is wrong: ${res.status}`)
-    //   const data = await res.json()
-  
-    //   // You are interested in a particular part of the response payload
-    //   console.log(data.choices[0].message.content) // Here is the generated output
-    //   // But feel free to explore the entire response body!
-    //   console.log(data)
-    // } catch (err) {
-    //   console.log(err.message)
-    // }
+    try {
+      const res = await fetch(articlesUrl, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: localStorage.getItem("token")
+        }      
+      })
+      .then(res=>{
+        if (!res.ok) {
+          throw new Error(`Something is wrong: ${res.status}`)
+        }
+        return res.json()  
+      })
+      .then(data =>{
+        console.log(data.articles)
+        setArticles(data.articles)
+        setMessage(data.message)
+      })
+      
+      // const data = await res.json()  
+      // console.log(data)
+      // setArticles(data.articles)
+      // setMessage(data.message)
+    } catch (err) {
+      console.log(err.message)
+    }
   }
 
   const postArticle = article => {
@@ -133,7 +145,7 @@ export default function App() {
           <Route path="articles" element={
             <>
               <ArticleForm updateArticle={updateArticle} setCurrentArticleId={setCurrentArticleId} postArticle={postArticle} />
-              <Articles setCurrentArticleId={setCurrentArticleId} articles={articles} getArticles={getArticles} deleteArticle={deleteArticle}/>
+              <Articles redirectToLogin={redirectToLogin} setCurrentArticleId={setCurrentArticleId} articles={articles} getArticles={getArticles} deleteArticle={deleteArticle}/>
             </>
           } />
         </Routes>
