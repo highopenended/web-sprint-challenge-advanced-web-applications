@@ -6,6 +6,7 @@ import Message from './Message'
 import ArticleForm from './ArticleForm'
 import Spinner from './Spinner'
 
+
 const articlesUrl = 'http://localhost:9000/api/articles'
 const loginUrl = 'http://localhost:9000/api/login'
 
@@ -22,6 +23,9 @@ export default function App() {
   const redirectToLogin = () => navigate('/')
   const redirectToArticles = () =>  navigate('/articles')
   
+  useEffect(()=>{
+
+  })
 
   const logout = () => {
     // ✨ implement
@@ -29,6 +33,7 @@ export default function App() {
     // and a message saying "Goodbye!" should be set in its proper state.
     // In any case, we should redirect the browser back to the login screen,
     // using the helper above.
+    localStorage.removeItem("token")
     redirectToLogin()
   }
 
@@ -82,8 +87,8 @@ export default function App() {
     // If something goes wrong, check the status of the response:
     // if it's a 401 the token might have gone bad, and we should redirect to login.
     // Don't forget to turn off the spinner!
-    // setMessage('')
-    // setSpinnerOn(true)
+    setMessage('')
+    setSpinnerOn(true)
     try {
       const res = await fetch(articlesUrl, {
         headers: {
@@ -92,9 +97,7 @@ export default function App() {
         }      
       })
       .then(res=>{
-        if (!res.ok) {
-          throw new Error(`Something is wrong: ${res.status}`)
-        }
+        if (!res.ok) throw new Error(res.status)        
         return res.json()  
       })
       .then(data =>{
@@ -102,14 +105,13 @@ export default function App() {
         setArticles(data.articles)
         setMessage(data.message)
       })
-      
-      // const data = await res.json()  
-      // console.log(data)
-      // setArticles(data.articles)
-      // setMessage(data.message)
     } catch (err) {
-      console.log(err.message)
+      if(err.message=="401"){
+        console.log("Removing token")
+        logout()
+      }
     }
+    setSpinnerOn(false)
   }
 
   const postArticle = article => {
@@ -144,7 +146,7 @@ export default function App() {
           <Route path="/" element={<LoginForm login={login} />} />
           <Route path="articles" element={
             <>
-              <ArticleForm updateArticle={updateArticle} currentArticleId={currentArticleId} setCurrentArticleId={setCurrentArticleId} postArticle={postArticle} />
+              <ArticleForm articles={articles} updateArticle={updateArticle} currentArticleId={currentArticleId} setCurrentArticleId={setCurrentArticleId} postArticle={postArticle} />
               <Articles redirectToLogin={redirectToLogin} currentArticleId={currentArticleId} setCurrentArticleId={setCurrentArticleId} articles={articles} getArticles={getArticles} deleteArticle={deleteArticle}/>
             </>
           } />

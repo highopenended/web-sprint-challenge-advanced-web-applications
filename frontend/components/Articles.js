@@ -6,13 +6,14 @@ export default function Articles(props) {
   // ✨ where are my props? Destructure them here
   const {redirectToLogin, currentArticleId, setCurrentArticleId, articles, getArticles, deleteArticle}=props
 
-
-
+  useEffect(()=>{
+    if(!localStorage.getItem("token")) {
+      console.log('Redirecting')
+      redirectToLogin()
+    }
+  })
   // we should render a Navigate to login screen (React Router v.6)
-
-
   useEffect(() => {
-    if(!localStorage.getItem("token")) redirectToLogin()
     getArticles()
   },[])
 

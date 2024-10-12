@@ -5,7 +5,7 @@ const initialFormValues = { title: '', text: '', topic: '' }
 
 export default function ArticleForm(props) {
   const [values, setValues] = useState(initialFormValues)
-  const {updateArticle, currentArticleId, setCurrentArticleId, postArticle}=props
+  const {articles, updateArticle, currentArticleId, setCurrentArticleId, postArticle}=props
 
   useEffect(() => {
     // ✨ implement
@@ -13,10 +13,13 @@ export default function ArticleForm(props) {
     // if it's truthy, we should set its title, text and topic into the corresponding
     // values of the form. If it's not, we should reset the form back to initial values.
     if(currentArticleId){
-      console.log(currentArticleId)
+      const article=articles.find(art=>art.article_id===currentArticleId)
+      setValues({...article})
+    }else{
+      setValues(initialFormValues)
     }
-
   },[currentArticleId])
+
 
   const onChange = evt => {
     const { id, value } = evt.target
@@ -31,16 +34,14 @@ export default function ArticleForm(props) {
   }
 
   const isDisabled = () => {
-    // ✨ implement
-    // Make sure the inputs have some values
-    
+    return !(values.title && values.text && values.topic)
   }
 
   return (
     // ✨ fix the JSX: make the heading display either "Edit" or "Create"
     // and replace Function.prototype with the correct function
     <form id="form" onSubmit={onSubmit}>
-      <h2>Create Article</h2>
+      <h2>{currentArticleId?"Edit Article":"Create Article"}</h2>
       <input
         maxLength={50}
         onChange={onChange}
@@ -62,8 +63,8 @@ export default function ArticleForm(props) {
         <option value="Node">Node</option>
       </select>
       <div className="button-group">
-        <button disabled={isDisabled} id="submitArticle">Submit</button>
-        {currentArticleId&&<button onClick={()=>setCurrentArticleId()}>Cancel edit</button>}
+        <button disabled={isDisabled()} id="submitArticle">Submit</button>
+        {currentArticleId && <button onClick={()=>setCurrentArticleId()}>Cancel edit</button>}
       </div>
     </form>
   )
