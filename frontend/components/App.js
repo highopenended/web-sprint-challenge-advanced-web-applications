@@ -22,10 +22,8 @@ export default function App() {
   const navigate = useNavigate()
   const redirectToLogin = () => navigate('/')
   const redirectToArticles = () =>  navigate('/articles')
-  
-  useEffect(()=>{
 
-  })
+
 
   const logout = () => {
     // ✨ implement
@@ -49,7 +47,7 @@ export default function App() {
 
     console.log("Username: ", username)
     console.log("Password: ", password)
-
+    setUsername(username)
     fetch(loginUrl, {
       method: 'POST', 
       body: JSON.stringify({ 
@@ -124,10 +122,37 @@ export default function App() {
   const updateArticle = ({ article_id, article }) => {
     // ✨ implement
     // You got this!
+
   }
 
-  const deleteArticle = article_id => {
+  const deleteArticle = async article_id => {
     // ✨ implement
+    const url = `${articlesUrl}/${article_id}`
+    setMessage('')
+    setSpinnerOn(true)
+    try {
+      const res = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: localStorage.getItem("token")
+        }
+      })
+      .then(res=>{
+        if (!res.ok) throw new Error(res.status)  
+        return res.json()  
+      })
+      .then(data =>{
+        setMessage(`Article ${article_id} was deleted, ${username}`)
+      })
+    } catch (err) {
+      if(err.message=="401"){
+        console.log("Removing token")
+        logout()
+      }
+    }
+
+    setSpinnerOn(false)
   }
 
   return (
