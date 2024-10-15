@@ -16,7 +16,6 @@ export default function App() {
   const [articles, setArticles] = useState([])
   const [currentArticleId, setCurrentArticleId] = useState()
   const [spinnerOn, setSpinnerOn] = useState(false)
-  const [username, setUsername] = useState('')
 
 
   // ✨ Research `useNavigate` in React Router v.6
@@ -35,7 +34,6 @@ export default function App() {
   const login = ({ username, password }) => {
     setMessage('')
     setSpinnerOn(true)
-    setUsername(username)
     fetch(loginUrl, {
       method: 'POST', 
       body: JSON.stringify({ 
@@ -100,6 +98,7 @@ export default function App() {
   }
 
   const postArticle = async (article) => {
+    setSpinnerOn(true)
     try {
       const res = await fetch(articlesUrl, {
         method: 'POST',
@@ -121,12 +120,41 @@ export default function App() {
     } catch (err) {
       console.log(err.message)
     }
+    setSpinnerOn(false)
   }
 
-  const updateArticle = ({ article_id, article }) => {
-    // ✨ implement
-    // You got this!
+  const updateArticle = async ({ article_id, article }) => {
+    setSpinnerOn(true)
+    try {
+      const res = await fetch(`${articlesUrl}/${article_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: localStorage.getItem("token")
+        },
+        body: JSON.stringify(article)
+      })
+      .then(res=>{
+        if (!res.ok) throw new Error(res.status)        
+        return res.json()  
+      })
+      .then(data=>{
+        console.log(data)
+        setArticles(articles.map(art=>{
+          return art.article_id===article_id
+            ? data.article
+            : art
+        }))
+        setMessage(data.message)
+      })
+    } catch (err) {
+      console.log(err.message)
+    }
+    setSpinnerOn(false)
+
   }
+
+
 
   const deleteArticle = async article_id => {
     const url = `${articlesUrl}/${article_id}`
@@ -145,7 +173,7 @@ export default function App() {
         return res.json()  
       })
       .then(data =>{
-        setMessage(`Article ${article_id} was deleted, ${username}!`)
+        setMessage(data.message)
         setArticles(articles.filter(art=>art.article_id!==article_id))
       })
     } catch (err) {
