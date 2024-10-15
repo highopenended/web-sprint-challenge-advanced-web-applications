@@ -33,17 +33,8 @@ export default function App() {
   }
 
   const login = ({ username, password }) => {
-    // ✨ implement
-    // We should flush the message state, turn on the spinner
-    // and launch a request to the proper endpoint.
-    // On success, we should set the token to local storage in a 'token' key,
-    // put the server success message in its proper state, and redirect
-    // to the Articles screen. Don't forget to turn off the spinner!
     setMessage('')
     setSpinnerOn(true)
-
-    console.log("Username: ", username)
-    console.log("Password: ", password)
     setUsername(username)
     fetch(loginUrl, {
       method: 'POST', 
@@ -96,7 +87,6 @@ export default function App() {
         return res.json()  
       })
       .then(data =>{
-        // console.log(data.articles)
         setArticles(data.articles)
         setMessage(data.message)
       })
@@ -109,11 +99,28 @@ export default function App() {
     setSpinnerOn(false)
   }
 
-  const postArticle = article => {
-    // ✨ implement
-    // The flow is very similar to the `getArticles` function.
-    // You'll know what to do! Use log statements or breakpoints
-    // to inspect the response from the server.
+  const postArticle = async (article) => {
+    try {
+      const res = await fetch(articlesUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: localStorage.getItem("token")
+        },
+        body: JSON.stringify(article)
+      })
+      .then(res=>{
+        if (!res.ok) throw new Error(res.status)        
+        return res.json()  
+      })
+      .then(data=>{
+        console.log(data.message)
+        setArticles([...articles, data.article])
+        setMessage(data.message)
+      })
+    } catch (err) {
+      console.log(err.message)
+    }
   }
 
   const updateArticle = ({ article_id, article }) => {
