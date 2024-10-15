@@ -27,12 +27,8 @@ export default function App() {
 
 
   const logout = () => {
-    // ✨ implement
-    // If a token is in local storage it should be removed,
-    // and a message saying "Goodbye!" should be set in its proper state.
-    // In any case, we should redirect the browser back to the login screen,
-    // using the helper above.
     localStorage.removeItem("token")
+    setMessage("Goodbye!")
     redirectToLogin()
   }
 
@@ -123,7 +119,6 @@ export default function App() {
   const updateArticle = ({ article_id, article }) => {
     // ✨ implement
     // You got this!
-
   }
 
   const deleteArticle = async article_id => {
@@ -143,7 +138,7 @@ export default function App() {
         return res.json()  
       })
       .then(data =>{
-        setMessage(`Article ${article_id} was deleted, ${username}`)
+        setMessage(`Article ${article_id} was deleted, ${username}!`)
         setArticles(articles.filter(art=>art.article_id!==article_id))
       })
     } catch (err) {

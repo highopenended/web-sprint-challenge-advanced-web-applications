@@ -12,15 +12,14 @@ export default function Articles(props) {
       redirectToLogin()
     }
   })
-  // we should render a Navigate to login screen (React Router v.6)
-  useEffect(() => {
-    getArticles()
+  
+  useEffect(() => {    
+    if(localStorage.getItem("token")) {
+      getArticles()
+    }
   },[])
 
 
-  const clickHandler_Delete = async (article_id)=>{
-    await deleteArticle(article_id)
-  }
 
 
   return (
@@ -41,7 +40,7 @@ export default function Articles(props) {
                 </div>
                 <div>
                   <button disabled={currentArticleId} onClick={()=>setCurrentArticleId(art.article_id)}>Edit</button>
-                  <button disabled={currentArticleId} onClick={()=>clickHandler_Delete(art.article_id)}>Delete</button>
+                  <button disabled={currentArticleId} onClick={()=>deleteArticle(art.article_id)}>Delete</button>
                   {/* <button disabled={currentArticleId} onClick={()=>deleteArticle(art.article_id)}>Delete</button> */}
                 </div>
               </div>
