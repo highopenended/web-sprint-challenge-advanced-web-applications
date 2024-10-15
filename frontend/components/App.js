@@ -18,6 +18,7 @@ export default function App() {
   const [spinnerOn, setSpinnerOn] = useState(false)
   const [username, setUsername] = useState('')
 
+
   // ✨ Research `useNavigate` in React Router v.6
   const navigate = useNavigate()
   const redirectToLogin = () => navigate('/')
@@ -99,7 +100,7 @@ export default function App() {
         return res.json()  
       })
       .then(data =>{
-        console.log(data.articles)
+        // console.log(data.articles)
         setArticles(data.articles)
         setMessage(data.message)
       })
@@ -126,7 +127,6 @@ export default function App() {
   }
 
   const deleteArticle = async article_id => {
-    // ✨ implement
     const url = `${articlesUrl}/${article_id}`
     setMessage('')
     setSpinnerOn(true)
@@ -144,6 +144,7 @@ export default function App() {
       })
       .then(data =>{
         setMessage(`Article ${article_id} was deleted, ${username}`)
+        setArticles(articles.filter(art=>art.article_id!==article_id))
       })
     } catch (err) {
       if(err.message=="401"){
@@ -151,9 +152,11 @@ export default function App() {
         logout()
       }
     }
-
     setSpinnerOn(false)
   }
+
+
+
 
   return (
     // ✨ fix the JSX: `Spinner`, `Message`, `LoginForm`, `ArticleForm` and `Articles` expect props ❗

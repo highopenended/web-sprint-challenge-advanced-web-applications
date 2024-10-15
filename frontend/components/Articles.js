@@ -17,6 +17,12 @@ export default function Articles(props) {
     getArticles()
   },[])
 
+
+  const clickHandler_Delete = async (article_id)=>{
+    await deleteArticle(article_id)
+  }
+
+
   return (
     // ✨ fix the JSX: replace `Function.prototype` with actual functions
     // and use the articles prop to generate articles
@@ -35,7 +41,8 @@ export default function Articles(props) {
                 </div>
                 <div>
                   <button disabled={currentArticleId} onClick={()=>setCurrentArticleId(art.article_id)}>Edit</button>
-                  <button disabled={currentArticleId} onClick={()=>deleteArticle(art.article_id)}>Delete</button>
+                  <button disabled={currentArticleId} onClick={()=>clickHandler_Delete(art.article_id)}>Delete</button>
+                  {/* <button disabled={currentArticleId} onClick={()=>deleteArticle(art.article_id)}>Delete</button> */}
                 </div>
               </div>
             )
